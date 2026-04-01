@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Augustea Open';
+  src: url('/Augustea-Open.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@theme {
+  --color-primary: #b67beb;
+  --color-secondary: #acacac;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Libre Baskerville", serif;
+  --font-augustea: "Augustea Open", sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+  body {
+    font-family: 'Augustea Open', sans-serif;
+    background-color: #fcfaff; 
+    color: #333;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
