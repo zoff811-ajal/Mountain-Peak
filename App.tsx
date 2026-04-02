@@ -36,6 +36,8 @@ const SERVICES: Service[] = [
 const App: React.FC = () => {
   const { scrollYProgress } = useScroll();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [formData, setFormData] = useState({ parentName: '', email: '', studentAge: '', message: '' });
+  const [formSubmitted, setFormSubmitted] = useState(false);
   
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
@@ -310,29 +312,51 @@ const App: React.FC = () => {
             </div>
             
             <div className="lg:w-1/2 bg-white p-12 md:p-20">
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              {formSubmitted ? (
+                <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-12">
+                  <CheckCircle2 size={48} className="text-green-500" />
+                  <h3 className="text-2xl font-bold text-gray-900">Message Sent!</h3>
+                  <p className="text-gray-500">Thank you for reaching out. We'll get back to you soon.</p>
+                  <button
+                    onClick={() => { setFormSubmitted(false); setFormData({ parentName: '', email: '', studentAge: '', message: '' }); }}
+                    className="text-primary font-bold hover:underline"
+                  >
+                    Send another message
+                  </button>
+                </div>
+              ) : (
+              <form className="space-y-6" onSubmit={(e) => {
+                e.preventDefault();
+                const subject = encodeURIComponent(`Inquiry from ${formData.parentName}`);
+                const body = encodeURIComponent(
+                  `Parent Name: ${formData.parentName}\nEmail: ${formData.email}\nStudent Age / Grade: ${formData.studentAge}\n\nMessage:\n${formData.message}`
+                );
+                window.open(`mailto:tutoring@mt-peak.org?subject=${subject}&body=${body}`, '_self');
+                setFormSubmitted(true);
+              }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Parent Name</label>
-                    <input type="text" className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" placeholder="John Doe" />
+                    <input type="text" required value={formData.parentName} onChange={(e) => setFormData({ ...formData, parentName: e.target.value })} className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" placeholder="John Doe" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Email Address</label>
-                    <input type="email" className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" placeholder="john@example.com" />
+                    <input type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" placeholder="john@example.com" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Student Age / Grade</label>
-                  <input type="text" className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" placeholder="7 years old / 2nd Grade" />
+                  <input type="text" required value={formData.studentAge} onChange={(e) => setFormData({ ...formData, studentAge: e.target.value })} className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" placeholder="7 years old / 2nd Grade" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Message</label>
-                  <textarea rows={4} className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none" placeholder="How can we help your child?" />
+                  <textarea rows={4} required value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none" placeholder="How can we help your child?" />
                 </div>
-                <button className="w-full bg-primary text-white py-5 rounded-2xl font-bold text-lg hover:bg-opacity-90 transition-all shadow-xl shadow-purple-100">
+                <button type="submit" className="w-full bg-primary text-white py-5 rounded-2xl font-bold text-lg hover:bg-opacity-90 transition-all shadow-xl shadow-purple-100">
                   Send Message
                 </button>
               </form>
+              )}
             </div>
           </div>
         </div>
@@ -350,9 +374,10 @@ const App: React.FC = () => {
             © 2026 Mountain Peak Christian Tutoring. All rights reserved.
           </div>
           <div className="flex gap-6">
-            {['Privacy', 'Terms', 'Facebook', 'Instagram'].map(item => (
-              <a key={item} href="#" className="text-gray-400 hover:text-primary text-sm font-medium transition-colors">{item}</a>
-            ))}
+            <a href="#" className="text-gray-400 hover:text-primary text-sm font-medium transition-colors">Privacy</a>
+            <a href="#" className="text-gray-400 hover:text-primary text-sm font-medium transition-colors">Terms</a>
+            <a href="https://www.facebook.com/profile.php?id=61583667848191" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary text-sm font-medium transition-colors">Facebook</a>
+            <a href="https://www.instagram.com/mountain_peak_christian/#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary text-sm font-medium transition-colors">Instagram</a>
           </div>
         </div>
       </footer>
