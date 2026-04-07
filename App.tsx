@@ -15,7 +15,7 @@ const SERVICES: Service[] = [
     title: 'Orton-Gillingham Tutoring',
     description: 'Specialized, multi-sensory approach for students with dyslexia and other reading challenges. Proven techniques to build strong literacy foundations.',
     icon: 'BookOpen',
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1000&auto=format&fit=crop'
+    image: '/Prevent the Summer Slide.png'
   },
   {
     id: '2',
@@ -155,7 +155,7 @@ const App: React.FC = () => {
             <div className="absolute -inset-4 bg-primary/10 rounded-[2rem] blur-2xl -z-10" />
             <div className="relative rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white">
               <img 
-                src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1000&auto=format&fit=crop" 
+                src="/Prevent the Summer Slide.png" 
                 alt="Child reading happily" 
                 className="w-full h-[500px] object-cover"
                 referrerPolicy="no-referrer"
