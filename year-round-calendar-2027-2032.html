@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four-day alternating flex calendar &middot; 2027 to 2032</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F5F1;
+  --card:#FFFFFF;
+  --ink:#1C2B26;
+  --muted:#6B7A74;
+  --rule:#DCDFD8;
+
+  --attend:#16624C;      --attend-t:#CFE3DB;
+  --flex:#B0700F;        --flex-t:#F7E6C6;
+  --break:#4E6A8A;       --break-t:#DDE5EF;
+  --holiday:#A33C4E;     --holiday-t:#F3DBE0;
+  --extra:#66489B;       --extra-t:#E4DBF2;
+
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.5;
+  font-variant-numeric:tabular-nums;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 72px}
+a{color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:-0.01em}
+p{margin:0 0 12px}
+
+/* ---------- masthead ---------- */
+.masthead{padding:40px 0 20px;border-bottom:2px solid var(--ink)}
+.masthead h1{font-size:clamp(30px,4.6vw,50px);line-height:1.02;max-width:16ch}
+.masthead .sub{margin-top:12px;color:var(--muted);max-width:62ch}
+
+/* ---------- year chips ---------- */
+.years{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0}
+.year-chip{
+  font:inherit;font-weight:500;cursor:pointer;
+  background:transparent;border:1px solid var(--rule);color:var(--muted);
+  padding:9px 15px;border-radius:2px;transition:background .12s,color .12s,border-color .12s;
+}
+.year-chip:hover{border-color:var(--ink);color:var(--ink)}
+.year-chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.year-chip:focus-visible,.opt:focus-visible,.step:focus-visible,.printer:focus-visible{outline:2px solid var(--attend);outline-offset:2px}
+
+/* ---------- hero: the cycle ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;padding:36px 0 34px;border-bottom:1px solid var(--rule);align-items:start}
+.cycle-title{font-size:19px;margin-bottom:4px}
+.cycle-note{color:var(--muted);font-size:13.5px;margin-bottom:20px;max-width:44ch}
+.cycle-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.cycle-tag{font-family:var(--serif);font-size:26px;width:26px;flex:0 0 26px;text-align:center;color:var(--ink)}
+.cycle-cells{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;flex:1;min-width:0}
+.cyc{
+  aspect-ratio:1/.72;border-radius:2px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;letter-spacing:.04em;
+}
+.cyc.on{background:var(--attend);color:#fff}
+.cyc.offday{background:var(--flex-t);color:var(--flex);border:1px dashed var(--flex)}
+.cycle-foot{display:flex;gap:22px;margin-top:14px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+
+.facts{border-left:1px solid var(--rule);padding-left:32px}
+.fact{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.fact:last-child{border-bottom:0}
+.fact dt{color:var(--muted)}
+.fact dd{margin:0;font-weight:600;text-align:right}
+.fact dd.big{font-family:var(--serif);font-size:21px;line-height:1}
+
+/* ---------- controls ---------- */
+.controls{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-end;padding:22px 0;border-bottom:1px solid var(--rule)}
+.ctl{min-width:0}
+.ctl-label{font-size:12.5px;color:var(--muted);margin-bottom:7px}
+.optset{display:flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden;background:var(--card)}
+.opt{font:inherit;font-size:13.5px;cursor:pointer;background:transparent;border:0;padding:9px 14px;color:var(--muted);border-right:1px solid var(--rule)}
+.opt:last-child{border-right:0}
+.opt[aria-pressed="true"]{background:var(--attend);color:#fff}
+.stepper{display:flex;align-items:center;border:1px solid var(--rule);border-radius:2px;background:var(--card)}
+.step{font:inherit;cursor:pointer;background:transparent;border:0;padding:8px 13px;color:var(--ink);font-size:16px;line-height:1}
+.stepval{min-width:34px;text-align:center;font-weight:600;font-size:14px}
+.printer{margin-left:auto;font:inherit;font-size:13.5px;cursor:pointer;background:var(--card);border:1px solid var(--ink);border-radius:2px;padding:9px 16px}
+.printer:hover{background:var(--ink);color:var(--paper)}
+
+/* ---------- flag ---------- */
+.flag{display:flex;gap:12px;padding:14px 16px;margin:22px 0 0;background:var(--holiday-t);border-left:3px solid var(--holiday);font-size:13.5px;border-radius:2px}
+.flag strong{font-weight:600}
+.flag.calm{background:var(--break-t);border-left-color:var(--break)}
+
+/* ---------- ribbon ---------- */
+.section{padding-top:38px}
+.section > h2{font-size:22px;margin-bottom:5px}
+.section > .lede{color:var(--muted);font-size:14px;margin-bottom:18px;max-width:66ch}
+.ribbon{display:flex;height:44px;border-radius:2px;overflow:hidden;border:1px solid var(--rule)}
+.rib{position:relative;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;color:#fff;overflow:hidden;white-space:nowrap}
+.rib.term{background:var(--attend)}
+.rib.break{background:var(--break-t);color:var(--break)}
+.rib.capstone{background:var(--extra)}
+.ribbon-scale{display:flex;margin-top:7px;font-size:11.5px;color:var(--muted)}
+.ribbon-scale span{flex:1;text-align:center}
+
+/* ---------- legend ---------- */
+.legend{display:flex;flex-wrap:wrap;gap:8px 22px;margin:18px 0 22px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:2px;margin-right:7px;vertical-align:-2px}
+
+/* ---------- months ---------- */
+.months{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.month{background:var(--card);border:1px solid var(--rule);border-radius:2px;padding:14px 14px 12px;break-inside:avoid}
+.month h3{font-size:15px;margin-bottom:2px}
+.month .mcount{font-size:11.5px;color:var(--muted);margin-bottom:10px}
+.grid{display:grid;grid-template-columns:14px repeat(7,1fr);gap:3px}
+.dow{font-size:10px;color:var(--muted);text-align:center;font-weight:600;padding-bottom:2px}
+.dow.we{color:#BFC5BD}
+.rail{font-family:var(--serif);font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.cell{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-size:11.5px;border-radius:2px;position:relative;
+}
+.cell.blank{color:#C9CEC7}
+.cell.we{color:#C3C8C0}
+.cell.attend{background:var(--attend);color:#fff;font-weight:600}
+.cell.flex{background:var(--flex-t);color:var(--flex);border:1px dashed var(--flex)}
+.cell.brk{background:var(--break-t);color:var(--break)}
+.cell.holiday{background:var(--holiday-t);color:var(--holiday);border:1px solid var(--holiday)}
+.cell.extra{background:var(--extra);color:#fff;font-weight:600}
+.cell.inSession::after{
+  content:"";position:absolute;top:2px;right:2px;width:5px;height:5px;border-radius:50%;
+  background:var(--holiday-t);box-shadow:0 0 0 1px var(--holiday);
+}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card);border:1px solid var(--rule)}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule)}
+th{font-weight:600;font-size:12px;color:var(--muted)}
+tbody tr:last-child td{border-bottom:0}
+td.num{text-align:right}
+.tag{display:inline-block;padding:2px 7px;border-radius:2px;font-size:11.5px;font-weight:600}
+.tag.off{background:var(--holiday-t);color:var(--holiday)}
+.tag.in{background:var(--attend-t);color:var(--attend)}
+.tag.none{background:var(--break-t);color:var(--break)}
+.wrapscroll{overflow-x:auto}
+
+footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--rule);color:var(--muted);font-size:13px;max-width:74ch}
+footer li{margin-bottom:7px}
+
+@media (max-width:1000px){ .months{grid-template-columns:repeat(3,1fr)} }
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:28px}
+  .facts{border-left:0;padding-left:0;border-top:1px solid var(--rule);padding-top:8px}
+  .months{grid-template-columns:repeat(2,1fr)}
+  .printer{margin-left:0}
+}
+@media (max-width:520px){ .months{grid-template-columns:1fr} .wrap{padding:0 16px 48px} }
+@media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+
+@media print{
+  body{background:#fff}
+  .controls,.years,.printer,.hero .facts{display:none}
+  .months{grid-template-columns:repeat(3,1fr);gap:10px}
+  .wrap{max-width:none;padding:0}
+  .month{border-color:#bbb}
+  .section{padding-top:18px}
+  @page{margin:12mm}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <h1>The four-day alternating flex calendar</h1>
+    <p class="sub">A year-round schedule built on a two-week rotation: four attendance days every week, a moving day off, and 163 student days a year. Pick a school year and a holiday policy to see the whole thing laid out.</p>
+    <div class="years" id="years" role="group" aria-label="School year"></div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h2 class="cycle-title">The rotation</h2>
+      <p class="cycle-note">Every term is five repetitions of these two weeks. The day off walks from Friday to the following Monday, giving families a long weekend on the turn.</p>
+      <div class="cycle-row">
+        <span class="cycle-tag">A</span>
+        <div class="cycle-cells">
+          <span class="cyc on">Mon</span><span class="cyc on">Tue</span><span class="cyc on">Wed</span><span class="cyc on">Thu</span><span class="cyc offday">Fri</span>
+        </div>
+      </div>
+      <div class="cycle-row">
+        <span class="cycle-tag">B</span>
+        <div class="cycle-cells">
+          <span class="cyc offday">Mon</span><span class="cyc on">Tue</span><span class="cyc on">Wed</span><span class="cyc on">Thu</span><span class="cyc on">Fri</span>
+        </div>
+      </div>
+      <div class="cycle-foot">
+        <span>8 attendance days per cycle</span>
+        <span>5 cycles per term</span>
+        <span>40 days per term</span>
+      </div>
+    </div>
+    <dl class="facts" id="facts"></dl>
+  </section>
+
+  <div class="controls">
+    <div class="ctl">
+      <div class="ctl-label">Federal holidays</div>
+      <div class="optset" role="group" aria-label="Holiday policy">
+        <button class="opt" id="optIn" type="button" aria-pressed="true">School in session</button>
+        <button class="opt" id="optOff" type="button" aria-pressed="false">Closed, made up in June</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <div class="ctl-label">Winter break</div>
+      <div class="optset" role="group" aria-label="Winter break alignment">
+        <button class="opt" id="alignOff" type="button" aria-pressed="true">Fixed 3 weeks</button>
+        <button class="opt" id="alignOn" type="button" aria-pressed="false">Hold through New Year</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <div class="ctl-label">Closure days to build in</div>
+      <div class="stepper">
+        <button class="step" id="snowMinus" type="button" aria-label="Fewer closure days">&minus;</button>
+        <span class="stepval" id="snowVal">0</span>
+        <button class="step" id="snowPlus" type="button" aria-label="More closure days">+</button>
+      </div>
+    </div>
+    <button class="printer" id="printBtn" type="button">Print this year</button>
+  </div>
+
+  <div id="flags"></div>
+
+  <section class="section">
+    <h2 id="ribbonHead">Shape of the year</h2>
+    <p class="lede" id="ribbonLede"></p>
+    <div class="ribbon" id="ribbon"></div>
+    <div class="ribbon-scale" id="ribbonScale"></div>
+  </section>
+
+  <section class="section">
+    <h2>Month by month</h2>
+    <p class="lede">Weeks run Monday to Sunday so each row is one half of the rotation. The letter in the left margin tells you which week of the cycle you are in.</p>
+    <div class="legend" id="legend"></div>
+    <div class="months" id="months"></div>
+  </section>
+
+  <section class="section">
+    <h2>Where the holidays land</h2>
+    <p class="lede" id="conflictLede"></p>
+    <div class="wrapscroll"><table id="conflicts">
+      <thead><tr><th>Holiday</th><th>Date</th><th>Falls</th><th>Result</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </section>
+
+  <section class="section">
+    <h2>All five years</h2>
+    <p class="lede">Same rules applied forward from the second Monday of July each year, under the settings above.</p>
+    <div class="wrapscroll"><table id="overview">
+      <thead><tr><th>Year</th><th>First day</th><th>Last day</th><th>Winter break</th><th class="num">Holidays hit</th><th class="num">Extra June days</th><th class="num">Student days</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </section>
+
+  <footer>
+    <p>Still to decide before this becomes a published calendar:</p>
+    <ul>
+      <li>Banked closure days are spare capacity: they keep the year at 163 even if you lose days to weather, and are released if you don't.</li>
+      <li>Juneteenth falls on 19 June and can collide with make-up days in the closed-holidays version.</li>
+      <li>Teacher work days, parent conferences, and assessment windows are not counted here &mdash; they would sit on flex days or inside an intersession.</li>
+      <li>Check your state's minimum for instructional <em>hours</em>, not just days. At 163 days the daily block has to be long enough to clear it.</li>
+      <li>The alternative to June make-up days is trimming a week from an intersession, which pulls the whole back half of the year forward.</li>
+    </ul>
+  </footer>
+
+</div>
+
+<script>
+/* Year-round calendar engine.
+   Rules from the source document:
+   - 2-week cycle. Week A: attend Mon-Thu, Friday off. Week B: Monday off, attend Tue-Fri.
+   - Each term = 10 weeks = 5 cycles = 40 attendance days. Parity restarts each term.
+   - 4 terms + a 3-day capstone (Mon/Tue/Wed) = 163 attendance days.
+   - Intersessions: 2 weeks (fall), 3 weeks (winter), 2 weeks (spring).
+   - Year starts on the second Monday of July.
+*/
+
+function addDays(dt, n) {
+  return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() + n);
+}
+function iso(dt) {
+  return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+}
+function nthWeekday(y, m, wd, n) {
+  let dt = new Date(y, m, 1);
+  while (dt.getDay() !== wd) dt = addDays(dt, 1);
+  return addDays(dt, (n - 1) * 7);
+}
+function lastWeekday(y, m, wd) {
+  let dt = new Date(y, m + 1, 0);
+  while (dt.getDay() !== wd) dt = addDays(dt, -1);
+  return dt;
+}
+function secondMondayOfJuly(y) {
+  return addDays(nthWeekday(y, 6, 1, 1), 7);
+}
+
+function blockPlan(winterWeeks) {
+  return [
+    { kind: 'term',  name: 'Term 1',              weeks: 10 },
+    { kind: 'break', name: 'Fall intersession',   weeks: 2 },
+    { kind: 'term',  name: 'Term 2',              weeks: 10 },
+    { kind: 'break', name: 'Winter intersession', weeks: winterWeeks },
+    { kind: 'term',  name: 'Term 3',              weeks: 10 },
+    { kind: 'break', name: 'Spring intersession', weeks: 2 },
+    { kind: 'term',  name: 'Term 4',              weeks: 10 }
+  ];
+}
+
+function holidaysFor(y) {
+  var thx = nthWeekday(y, 10, 4, 4);
+  return [
+    { date: nthWeekday(y, 8, 1, 1),      name: 'Labor Day' },
+    { date: thx,                          name: 'Thanksgiving' },
+    { date: addDays(thx, 1),              name: 'Day after Thanksgiving' },
+    { date: new Date(y, 11, 25),          name: 'Christmas Day' },
+    { date: new Date(y + 1, 0, 1),        name: "New Year's Day" },
+    { date: nthWeekday(y + 1, 0, 1, 3),   name: 'Martin Luther King Jr. Day' },
+    { date: nthWeekday(y + 1, 1, 1, 3),   name: 'Presidents Day' },
+    { date: lastWeekday(y + 1, 4, 1),     name: 'Memorial Day' }
+  ];
+}
+
+function buildYear(y, opts) {
+  opts = opts || {};
+  var holidaysOff = !!opts.holidaysOff;
+  var snowDays = opts.snowDays || 0;
+
+  var start = secondMondayOfJuly(y);
+
+  // With a flat 3-week winter break, some years reopen Term 3 on Dec 30/31 or Jan 1.
+  var newYear = new Date(y + 1, 0, 1);
+  var term3IfThree = addDays(start, 25 * 7);
+  var newYearClash = term3IfThree <= newYear;
+  var winterWeeks = (opts.alignNewYear && newYearClash) ? 4 : 3;
+  var BLOCKS = blockPlan(winterWeeks);
+
+  var days = {};
+  var blocks = [];
+  var cur = start;
+
+  for (var bi = 0; bi < BLOCKS.length; bi++) {
+    var b = BLOCKS[bi];
+    var bStart = cur;
+    var bEnd = addDays(cur, b.weeks * 7 - 3); // Friday of the final week
+    if (b.kind === 'term') {
+      for (var w = 0; w < b.weeks; w++) {
+        var mon = addDays(cur, w * 7);
+        var isA = (w % 2 === 0);
+        for (var i = 0; i < 5; i++) {
+          var dt = addDays(mon, i);
+          var type;
+          if (isA) type = (i === 4) ? 'flex' : 'attend';
+          else     type = (i === 0) ? 'flex' : 'attend';
+          days[iso(dt)] = { date: dt, type: type, block: b.name, weekNo: w + 1, letter: isA ? 'A' : 'B' };
+        }
+      }
+    } else {
+      for (var w2 = 0; w2 < b.weeks; w2++) {
+        for (var j = 0; j < 5; j++) {
+          var dt2 = addDays(cur, w2 * 7 + j);
+          days[iso(dt2)] = { date: dt2, type: 'break', block: b.name };
+        }
+      }
+    }
+    blocks.push({ kind: b.kind, name: b.name, weeks: b.weeks, start: bStart, end: bEnd });
+    cur = addDays(cur, b.weeks * 7);
+  }
+
+  // Capstone: Monday, Tuesday, Wednesday of the week after Term 4
+  var capStart = cur;
+  for (var c = 0; c < 3; c++) {
+    var cd = addDays(capStart, c);
+    days[iso(cd)] = { date: cd, type: 'attend', block: 'Capstone session', capstone: true };
+  }
+  blocks.push({ kind: 'capstone', name: 'Capstone session', weeks: 0, start: capStart, end: addDays(capStart, 2) });
+
+  // Holidays
+  var hols = holidaysFor(y);
+  var conflicts = [];
+  var lost = 0;
+  for (var h = 0; h < hols.length; h++) {
+    var k = iso(hols[h].date);
+    var dow = hols[h].date.getDay();
+    var rec = days[k];
+    var landing, effect;
+    if (dow === 0 || dow === 6) {
+      landing = 'weekend';
+      effect = 'No effect';
+    } else if (!rec) {
+      landing = 'outside the calendar';
+      effect = 'No effect';
+    } else if (rec.type === 'break') {
+      landing = 'inside ' + rec.block.toLowerCase();
+      effect = 'Already off';
+      rec.holiday = hols[h].name;
+    } else if (rec.type === 'flex') {
+      landing = 'on a flex day off';
+      effect = 'Already off';
+      rec.holiday = hols[h].name;
+    } else {
+      landing = 'on an attendance day';
+      rec.holiday = hols[h].name;
+      if (holidaysOff) {
+        rec.type = 'holiday';
+        effect = 'Day off, made up in June';
+        lost++;
+      } else {
+        rec.inSession = true;
+        effect = 'School in session';
+      }
+    }
+    conflicts.push({ name: hols[h].name, date: hols[h].date, landing: landing, effect: effect });
+  }
+
+  // Make-up days appended after the capstone
+  var makeupTarget = lost + snowDays;
+  var makeups = [];
+  var probe = addDays(capStart, 3);
+  var guard = 0;
+  while (makeups.length < makeupTarget && guard < 200) {
+    guard++;
+    var d = probe.getDay();
+    var isHol = false;
+    if (holidaysOff) {
+      for (var hh = 0; hh < hols.length; hh++) if (iso(hols[hh].date) === iso(probe)) isHol = true;
+    }
+    if (d >= 1 && d <= 5 && !isHol) {
+      days[iso(probe)] = { date: probe, type: 'attend', block: 'Make-up days', makeup: true };
+      makeups.push(probe);
+    }
+    probe = addDays(probe, 1);
+  }
+
+  var attend = 0, flex = 0, off = 0;
+  var minD = null, maxD = null, lastAttend = null;
+  for (var key in days) {
+    var r = days[key];
+    if (r.type === 'attend') { attend++; if (!lastAttend || r.date > lastAttend) lastAttend = r.date; }
+    if (r.type === 'flex') flex++;
+    if (r.type === 'holiday') off++;
+    if (!minD || r.date < minD) minD = r.date;
+    if (!maxD || r.date > maxD) maxD = r.date;
+  }
+
+  return {
+    year: y,
+    label: y + '\u2013' + (y + 1),
+    start: start,
+    lastDay: lastAttend,
+    days: days,
+    blocks: blocks,
+    conflicts: conflicts,
+    winterWeeks: winterWeeks,
+    newYearClash: newYearClash,
+    holidaysLost: lost,
+    snowDays: snowDays,
+    makeups: makeups,
+    attendanceDays: attend,
+    flexDays: flex,
+    holidayDaysOff: off,
+    firstRendered: minD,
+    lastRendered: maxD
+  };
+}
+
+var MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var MONTH_ABBR=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var YEARS=[2027,2028,2029,2030,2031];
+
+var state={year:2027,holidaysOff:false,alignNewYear:false,snowDays:0};
+
+function fmtLong(d){return d.getDate()+' '+MONTH_NAMES[d.getMonth()]+' '+d.getFullYear();}
+function fmtShort(d){return MONTH_ABBR[d.getMonth()]+' '+d.getDate();}
+function fmtMid(d){return MONTH_ABBR[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+
+function opts(){return {holidaysOff:state.holidaysOff,alignNewYear:state.alignNewYear,snowDays:state.snowDays};}
+
+/* ---------- year chips ---------- */
+function renderYears(){
+  var box=document.getElementById('years');box.innerHTML='';
+  YEARS.forEach(function(y){
+    var b=el('button','year-chip',y+'\u2013'+String(y+1).slice(2));
+    b.type='button';
+    b.setAttribute('aria-pressed',String(y===state.year));
+    b.onclick=function(){state.year=y;render();};
+    box.appendChild(b);
+  });
+}
+
+/* ---------- facts ---------- */
+function renderFacts(cal){
+  var f=document.getElementById('facts');f.innerHTML='';
+  var rows=[
+    ['Student days',String(cal.attendanceDays-state.snowDays),true],
+    ['First day',fmtLong(cal.start),false],
+    ['Last day',fmtLong(cal.lastDay),false],
+    ['Flex days off',cal.flexDays+' across the year',false],
+    ['Intersession weeks',(2+cal.winterWeeks+2)+' weeks in three breaks',false],
+    ['Longest stretch off',cal.winterWeeks+' weeks in winter',false]
+  ];
+  if(state.snowDays) rows.splice(1,0,['Banked for closures',state.snowDays+' spare day'+(state.snowDays>1?'s':'')+' in June',false]);
+  rows.forEach(function(r){
+    var d=el('div','fact');
+    d.appendChild(el('dt',null,r[0]));
+    d.appendChild(el('dd',r[2]?'big':null,r[1]));
+    f.appendChild(d);
+  });
+}
+
+/* ---------- flags ---------- */
+function renderFlags(cal){
+  var box=document.getElementById('flags');box.innerHTML='';
+  if(cal.newYearClash && !state.alignNewYear){
+    var t3=cal.blocks[4].start;
+    var f=el('div','flag');
+    f.innerHTML='<div><strong>Term 3 opens '+fmtLong(t3)+'.</strong> Rolled forward strictly, the three-week winter break runs out before the new year, so students are back in the building on or before 1 January. Switch winter break to <em>Hold through New Year</em> to add a fourth week and push the restart into January.</div>';
+    box.appendChild(f);
+  }
+  if(state.holidaysOff && cal.makeups.length){
+    var g=el('div','flag calm');
+    var last=cal.makeups[cal.makeups.length-1];
+    g.innerHTML='<div><strong>'+cal.makeups.length+' make-up day'+(cal.makeups.length>1?'s':'')+' added in June.</strong> Closing for holidays costs '+cal.holidaysLost+' scheduled day'+(cal.holidaysLost===1?'':'s')+(state.snowDays?' plus '+state.snowDays+' reserved closure day'+(state.snowDays>1?'s':''):'')+', so the year now ends '+fmtLong(last)+' instead of after the three-day capstone.';
+    box.appendChild(g);
+  }
+}
+
+/* ---------- ribbon ---------- */
+function renderRibbon(cal){
+  var r=document.getElementById('ribbon');r.innerHTML='';
+  var scale=document.getElementById('ribbonScale');scale.innerHTML='';
+  var total=0;
+  cal.blocks.forEach(function(b){total+=(b.kind==='capstone'?1:b.weeks);});
+  cal.blocks.forEach(function(b){
+    var w=(b.kind==='capstone'?1:b.weeks);
+    var seg=el('div','rib '+(b.kind==='term'?'term':b.kind==='break'?'break':'capstone'));
+    seg.style.flex=w+' 0 0';
+    seg.title=b.name+' \u00b7 '+fmtMid(b.start)+' to '+fmtMid(b.end);
+    if(w>=2) seg.textContent=(b.kind==='term'?b.name:b.kind==='capstone'?'':b.name.split(' ')[0]);
+    r.appendChild(seg);
+  });
+  document.getElementById('ribbonLede').textContent=
+    'Four ten-week terms of 40 days each, three intersessions, and a three-day capstone \u2014 '+total+' weeks running '+fmtLong(cal.start)+' to '+fmtLong(cal.lastDay)+'.';
+  ['Jul','Sep','Nov','Jan','Mar','May'].forEach(function(m){scale.appendChild(el('span',null,m));});
+}
+
+/* ---------- legend ---------- */
+function renderLegend(){
+  var L=document.getElementById('legend');L.innerHTML='';
+  var items=[
+    ['var(--attend)','Attendance day'],
+    ['var(--flex-t)','Flex day off in the rotation'],
+    ['var(--break-t)','Intersession'],
+    ['var(--extra)','Capstone and make-up days']
+  ];
+  if(state.holidaysOff) items.push(['var(--holiday-t)','Holiday closure']);
+  else items.push(['var(--attend)','Holiday worked \u2014 marked with a dot']);
+  items.forEach(function(it){
+    var s=el('span');var i=el('i');i.style.background=it[0];
+    if(it[0]==='var(--flex-t)')i.style.border='1px dashed var(--flex)';
+    if(it[0]==='var(--holiday-t)')i.style.border='1px solid var(--holiday)';
+    if(it[1].indexOf('Holiday worked')===0)i.style.boxShadow='inset -4px 4px 0 -1px var(--holiday-t), inset -4px 4px 0 0 var(--holiday)';
+    s.appendChild(i);s.appendChild(document.createTextNode(it[1]));
+    L.appendChild(s);
+  });
+}
+
+/* ---------- months ---------- */
+function renderMonths(cal){
+  var host=document.getElementById('months');host.innerHTML='';
+  var first=new Date(cal.firstRendered.getFullYear(),cal.firstRendered.getMonth(),1);
+  var last=new Date(cal.lastRendered.getFullYear(),cal.lastRendered.getMonth(),1);
+  var cursor=new Date(first);
+  while(cursor<=last){
+    host.appendChild(monthCard(cal,cursor.getFullYear(),cursor.getMonth()));
+    cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);
+  }
+}
+
+function monthCard(cal,y,m){
+  var card=el('div','month');
+  card.appendChild(el('h3',null,MONTH_NAMES[m]+' '+y));
+  var countEl=el('div','mcount','');
+  card.appendChild(countEl);
+
+  var g=el('div','grid');
+  ['','M','T','W','T','F','S','S'].forEach(function(d,i){
+    var h=el('div','dow'+(i>=6?' we':''),d);
+    g.appendChild(h);
+  });
+
+  var firstOfMonth=new Date(y,m,1);
+  var shift=(firstOfMonth.getDay()+6)%7;           // Monday-first offset
+  var gridStart=addDays(firstOfMonth,-shift);
+  var daysInMonth=new Date(y,m+1,0).getDate();
+  var rows=Math.ceil((shift+daysInMonth)/7);
+  var attendCount=0;
+
+  for(var r=0;r<rows;r++){
+    var mon=addDays(gridStart,r*7);
+    var monRec=cal.days[iso(mon)];
+    g.appendChild(el('div','rail',monRec&&monRec.letter?monRec.letter:'\u00b7'));
+    for(var c=0;c<7;c++){
+      var dt=addDays(mon,c);
+      var inMonth=(dt.getMonth()===m&&dt.getFullYear()===y);
+      var rec=inMonth?cal.days[iso(dt)]:null;
+      var cls='cell',label='';
+      if(!inMonth){cls+=' blank';}
+      else if(c>=5){cls+=' we';}
+      else if(!rec){cls+=' blank';}
+      else if(rec.type==='attend'){
+        cls+=(rec.capstone||rec.makeup)?' extra':' attend';
+        if(rec.inSession)cls+=' inSession';
+        attendCount++;
+        label=rec.makeup?'Make-up day':rec.capstone?'Capstone session':(rec.block+', week '+rec.weekNo+rec.letter);
+        if(rec.holiday)label+=' \u2014 '+rec.holiday+', in session';
+      }
+      else if(rec.type==='flex'){cls+=' flex';label='Flex day off \u2014 '+rec.block+', week '+rec.weekNo+rec.letter;}
+      else if(rec.type==='break'){cls+=' brk';label=rec.block+(rec.holiday?' \u2014 '+rec.holiday:'');}
+      else if(rec.type==='holiday'){cls+=' holiday';label=rec.holiday+' \u2014 closed';}
+      var cell=el('div',cls,inMonth?String(dt.getDate()):'');
+      if(label)cell.title=label;
+      g.appendChild(cell);
+    }
+  }
+  card.appendChild(g);
+  countEl.textContent=attendCount?attendCount+' student day'+(attendCount===1?'':'s'):'No student days';
+  return card;
+}
+
+/* ---------- conflicts ---------- */
+function renderConflicts(cal){
+  var tb=document.querySelector('#conflicts tbody');tb.innerHTML='';
+  var hits=0;
+  cal.conflicts.forEach(function(c){
+    var tr=el('tr');
+    tr.appendChild(el('td',null,c.name));
+    tr.appendChild(el('td',null,fmtMid(c.date)));
+    tr.appendChild(el('td',null,c.landing.charAt(0).toUpperCase()+c.landing.slice(1)));
+    var td=el('td');
+    var cls=c.effect==='School in session'?'in':c.effect==='No effect'?'none':c.effect==='Already off'?'none':'off';
+    var tag=el('span','tag '+cls,c.effect);
+    td.appendChild(tag);tr.appendChild(td);
+    if(c.landing==='on an attendance day')hits++;
+    tb.appendChild(tr);
+  });
+  document.getElementById('conflictLede').textContent=
+    hits+' of the eight holidays land on a day the rotation would otherwise have students in the building this year. The rest fall on a flex day, inside an intersession, or on a weekend, and cost nothing either way.';
+}
+
+/* ---------- overview ---------- */
+function renderOverview(){
+  var tb=document.querySelector('#overview tbody');tb.innerHTML='';
+  YEARS.forEach(function(y){
+    var c=buildYear(y,opts());
+    var hits=c.conflicts.filter(function(x){return x.landing==='on an attendance day';}).length;
+    var tr=el('tr');
+    if(y===state.year)tr.style.background='var(--attend-t)';
+    tr.appendChild(el('td',null,c.label));
+    tr.appendChild(el('td',null,fmtMid(c.start)));
+    tr.appendChild(el('td',null,fmtMid(c.lastDay)));
+    tr.appendChild(el('td',null,fmtShort(c.blocks[3].start)+' \u2013 '+fmtShort(c.blocks[3].end)));
+    tr.appendChild(el('td','num',String(hits)));
+    tr.appendChild(el('td','num',String(c.makeups.length)));
+    tr.appendChild(el('td','num',String(c.attendanceDays-state.snowDays)));
+    tb.appendChild(tr);
+  });
+}
+
+/* ---------- controls ---------- */
+function bind(){
+  document.getElementById('optIn').onclick=function(){state.holidaysOff=false;render();};
+  document.getElementById('optOff').onclick=function(){state.holidaysOff=true;render();};
+  document.getElementById('alignOff').onclick=function(){state.alignNewYear=false;render();};
+  document.getElementById('alignOn').onclick=function(){state.alignNewYear=true;render();};
+  document.getElementById('snowMinus').onclick=function(){state.snowDays=Math.max(0,state.snowDays-1);render();};
+  document.getElementById('snowPlus').onclick=function(){state.snowDays=Math.min(10,state.snowDays+1);render();};
+  document.getElementById('printBtn').onclick=function(){window.print();};
+}
+
+function syncControls(){
+  document.getElementById('optIn').setAttribute('aria-pressed',String(!state.holidaysOff));
+  document.getElementById('optOff').setAttribute('aria-pressed',String(state.holidaysOff));
+  document.getElementById('alignOff').setAttribute('aria-pressed',String(!state.alignNewYear));
+  document.getElementById('alignOn').setAttribute('aria-pressed',String(state.alignNewYear));
+  document.getElementById('snowVal').textContent=String(state.snowDays);
+}
+
+function render(){
+  var cal=buildYear(state.year,opts());
+  renderYears();syncControls();
+  renderFacts(cal);renderFlags(cal);renderRibbon(cal);
+  renderLegend();renderMonths(cal);renderConflicts(cal);renderOverview();
+}
+
+bind();render();
+</script>
+</body>
+</html>
