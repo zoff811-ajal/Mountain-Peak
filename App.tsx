@@ -122,7 +122,7 @@ const App: React.FC = () => {
           <motion.div style={{ opacity: heroOpacity, scale: heroScale }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 text-primary text-sm font-bold mb-6 border border-purple-100">
               <Star size={16} className="fill-primary" />
-              <span>Orton-Gillingham Certified</span>
+              <span>Orton-Gillingham Inspired</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-serif font-bold text-gray-900 leading-tight mb-6">
               Shepherding Children to their <span className="text-primary italic">Peak</span>
@@ -198,11 +198,11 @@ const App: React.FC = () => {
                 Expert Guidance with a <br/><span className="text-primary">Nurturing Heart</span>
               </h2>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                As an Orton-Gillingham certified tutor with over two decades in early education, I understand that every child learns differently. My approach combines scientific literacy methods with a deep commitment to Christ-centered character development.
+                As an Orton-Gillingham Inspired Tutor with over two decades in early education, I understand that every child learns differently. My approach combines scientific literacy methods with a deep commitment to Christ-centered character development.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 {[
-                  'Orton-Gillingham Certified',
+                  'Orton-Gillingham Inspired',
                   '23 Years in Early Education',
                   'Multi-Sensory Learning',
                   'Dyslexia Specialist',
@@ -287,7 +287,7 @@ const App: React.FC = () => {
           <div className="bg-gray-900 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
             <div className="lg:w-1/2 p-12 md:p-20 text-white">
               <h2 className="text-4xl md:text-5xl font-serif font-bold mb-8">Start Your Child's <br/><span className="text-primary">Journey Today</span></h2>
-              <p className="text-gray-400 mb-12 text-lg">We are currently accepting new students for the upcoming semester. Reach out to schedule a consultation.</p>
+              <p className="text-gray-400 mb-12 text-lg"> Call to schedule a consultation.</p>
               
               <div className="space-y-8">
                 <div className="flex items-center gap-6">
@@ -296,7 +296,7 @@ const App: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-sm text-gray-500 uppercase tracking-widest font-bold mb-1">Email Us</div>
-                    <div className="text-lg font-medium">tutoring@mt-peak.org</div>
+                    <div className="text-lg font-medium">learn@mt-peak.org</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
