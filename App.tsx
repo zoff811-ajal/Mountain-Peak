@@ -12,7 +12,7 @@ import { Service } from './types';
 const SERVICES: Service[] = [
   {
     id: '1',
-    title: 'Orton-Gillingham Tutoring',
+    title: 'Orton-Gillingham Inspired Tutoring',
     description: 'Specialized, multi-sensory approach for students with dyslexia and other reading challenges. Proven techniques to build strong literacy foundations.',
     icon: 'BookOpen',
     image: '/Prevent the Summer Slide.png'
